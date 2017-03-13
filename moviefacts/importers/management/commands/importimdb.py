@@ -53,7 +53,10 @@ class Command(BaseCommand):
             #m = p.search(line)
             #print m
             #sys.exit()
-            title = line[32:-7]
+            pieces = line.split('  ')
+            print pieces
+            title = line[32:-7].strip()
+            print title
             if title and title[0] == '"':
                 # It's a serie entry, skip
                 return None, None, None, None
@@ -142,7 +145,12 @@ class Command(BaseCommand):
                     break
                 title, year, rating, votes = self.parse_movie_rating_line(line)
                 if title:
-                    movies[str(year) + base64.encodestring(title.encode('utf-8'))] = {'title': title, 'year': year, 'rating': rating, 'votes': votes}
+                    try:
+                        movies[str(year) + base64.encodestring(title.encode('utf-8'))] = {'title': title, 'year': year, 'rating': rating, 'votes': votes}
+                    except UnicodeEncodeError as e:
+                        print "FAIL"
+                        print title
+                        sys.exit()
                     #movie = Movie(title=title, year=year)
                     #movie.save()
                     counter += 1
