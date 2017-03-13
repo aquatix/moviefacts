@@ -18,4 +18,4 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class MovieSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Movie
-        fields = ('title', 'year', 'plot',)
+        fields = ('title', 'year', 'rating', 'votes', 'plot')

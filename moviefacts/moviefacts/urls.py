@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers, serializers, viewsets
+from random import randint
 from movieapi.models import Movie
 
 # Serializers define the API representation.
@@ -28,6 +29,13 @@ class MovieSerializer(serializers.HyperlinkedModelSerializer):
 class RandomMovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+
+    def get_queryset(self):
+        count = Movie.objects.all().count()
+        random_index = randint(0, count - 1)
+        return [Movie.objects.all()[random_index]]
+        this_movie = Movie.objects.all()[random_index]
+        return Movie.objects.filter(this_movie)
 
 router = routers.DefaultRouter()
 router.register(r'randommovie', RandomMovieViewSet)
