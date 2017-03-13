@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from movieapi.models import Movie, Actor
+import codecs
 import os
 
 class Command(BaseCommand):
@@ -14,28 +15,36 @@ class Command(BaseCommand):
         # Series (skip):
         # "Family Guy" (1999)                                     1999-????
         # "Family Guy" (1999) {8 Simple Rules for Buying My Teenage Daughter (#4.8)}      2005
-        if line[0] == '"':
-            # It's a serie entry, skip
+        if not line or line[0] == '"':
+            # It's a serie entry or invalid line, skip
             return None, None
         else:
+            line = line.strip()
             year = line[-4:]
+            if year == '????':
+                year = 0
             stripped = line[:-4].strip()
             pieces = line.split('(')
             title = pieces[0].strip()
             return title, year
 
     def import_movies(self, filename):
-        with open(filename, 'r') as f:
-            lines = f.readlines()
-            linecounter = 0
-            while not 'MOVIES LIST' in lines[linecounter]:
-                linecounter += 1
-            linecounter += 2
+        in_body = False  # Denotes if we are done skipping the file heading
+        #f = codecs.open(filename, encoding='utf-8')
+        f = codecs.open(filename, encoding='ISO-8859-1')
+        for line in f:
+            #if not in_body and 'MOVIES LIST' in line:
+            if not in_body and '===========' in line:
+                in_body = True
+                continue
 
-            title, year = self.parse_movie_line(lines[linecounter])
-            if title:
-                movie = Movie(title=title, year=year)
-                movie.save()
+            if in_body:
+                title, year = self.parse_movie_line(line)
+                if title:
+                    self.stdout.write(title)
+                if title:
+                    movie = Movie(title=title, year=year)
+                    movie.save()
 
     def handle(self, *args, **options):
         self.stdout.write('Importing IMDb files from "%s"' % options['directory'])
@@ -44,6 +53,7 @@ class Command(BaseCommand):
         movies_file = os.path.join(options['directory'], 'movies.list')
         self.stdout.write('Processing ' + movies_file)
         if os.path.isfile(os.path.join(options['directory'], 'movies.list')):
+            Movie.objects.all().delete()
             self.import_movies(movies_file)
         else:
             self.stderr.write(movies_file + ' not found')
