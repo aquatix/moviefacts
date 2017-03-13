@@ -9,6 +9,8 @@ class Movie(models.Model):
     year = models.IntegerField(blank=True, null=True)
     plot = models.TextField(blank=True, null=True)
     runtime = models.IntegerField(blank=True, null=True)
+    votes = models.IntegerField(blank=True, null=True)
+    rating = models.FloatField(blank=True, null=True)
 
 
 class Actor(models.Model):

@@ -43,26 +43,21 @@ class Command(BaseCommand):
             # It's a serie entry or invalid line, skip
             return None, None, None, None
         else:
-            p = re.compile(r'\w+(?P<dist>[.a-zA-Z0-9]\w+)'
-                r'(?P<votes>\d+)\w+'
-                r'(?P<rank>\d+\.\d+)'
-                r'(?P<title>)$'
-                #r'\w+\((?P<year>[0-9][0-9][0-9][0-9])\)'
-            )
-            #m = re.search('/([0-9.\*]+) \s+ ([0-9]+) \s+ ([0-9.]+) \s+ (#{$title}?) \s+ \(([0-9]+)\)/ix', line)
-            #m = p.search(line)
-            #print m
-            #sys.exit()
             pieces = line.split('  ')
-            print pieces
-            title = line[32:-7].strip()
-            print title
+            title = pieces[-1]
             if title and title[0] == '"':
                 # It's a serie entry, skip
                 return None, None, None, None
-            votes = line[17:24].strip()
-            rating = line[25:30].strip()
-            year = line[-5:-1]
+            votes = pieces[-3].strip()
+            rating = float(pieces[-2].strip())
+            title = title.replace(' (V)', '').replace(' (TV)', '').replace(' (VG)', '')
+            try:
+                year = int(title[-5:-1])
+            except ValueError:
+                # Year could not be extracted, bail for now
+                return None, None, None, None
+            title = title[:-6].strip()
+            #print title
             if year == '????':
                 year = 0
             return title, year, rating, votes
@@ -132,7 +127,7 @@ class Command(BaseCommand):
         f = codecs.open(filename, encoding='ISO-8859-1')
         for line in f:
             if not in_body and 'New  Distribution  Votes  Rank  Title' in line:
-                if counter > 0:
+                if counter > 1:
                     # There's two of those headings...
                     in_body = True
                     counter = 0
@@ -145,6 +140,7 @@ class Command(BaseCommand):
                     break
                 title, year, rating, votes = self.parse_movie_rating_line(line)
                 if title:
+                    print(title, year, rating, votes)
                     try:
                         movies[str(year) + base64.encodestring(title.encode('utf-8'))] = {'title': title, 'year': year, 'rating': rating, 'votes': votes}
                     except UnicodeEncodeError as e:
