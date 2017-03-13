@@ -140,7 +140,7 @@ class Command(BaseCommand):
                     break
                 title, year, rating, votes = self.parse_movie_rating_line(line)
                 if title:
-                    print(title, year, rating, votes)
+                    #print(title, year, rating, votes)
                     try:
                         movies[str(year) + base64.encodestring(title.encode('utf-8'))] = {'title': title, 'year': year, 'rating': rating, 'votes': votes}
                     except UnicodeEncodeError as e:
@@ -179,14 +179,16 @@ class Command(BaseCommand):
 
         self.stdout.write('Done reading, save to database...')
 
-        self.stdout.write(movies.values()[0])
+        self.stdout.write('First remove all old movies...')
+        Movie.objects.all().delete()
 
-        sys.exit()
+        self.stdout.write('Done cleaning, save to database...')
 
         counter = 1
         progress = 1
-        for movie in movies:
-            Movie.object.create(title=movie['title'], year=movie['year'], rating=movie['rating'], votes=movie['votes'])
+        for key in movies:
+            movie = movies[key]
+            Movie.objects.create(title=movie['title'], year=movie['year'], rating=movie['rating'], votes=movie['votes'])
             counter += 1
             progress += 1
             if progress == 1000:

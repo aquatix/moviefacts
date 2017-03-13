@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User, Group
-from movieapi.models import Movie, Author
+from movieapi.models import Movie
 from rest_framework import serializers
 
 
