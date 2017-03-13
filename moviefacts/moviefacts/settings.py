@@ -52,6 +52,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+#REST_FRAMEWORK = {
+#    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+#}
+
 ROOT_URLCONF = 'moviefacts.urls'
 
 TEMPLATES = [

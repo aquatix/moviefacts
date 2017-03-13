@@ -15,10 +15,17 @@ class MovieViewSet(viewsets.ModelViewSet):
 class RandomMovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+    #filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
 
     def get_queryset(self):
-        count = Movie.objects.all().count()
+        movies = Movie.objects.all()
+        print self.kwargs
+        try:
+            year = self.kwargs['year']
+            print year
+            movies = movies.filter(year=year)
+        except:
+            pass
+        count = movies.count()
         random_index = randint(0, count - 1)
-        return [Movie.objects.all()[random_index]]
-        this_movie = Movie.objects.all()[random_index]
-        return Movie.objects.filter(this_movie)
+        return [movies[random_index]]
