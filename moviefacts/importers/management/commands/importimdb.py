@@ -30,6 +30,9 @@ class Command(BaseCommand):
 
     def import_movies(self, filename):
         in_body = False  # Denotes if we are done skipping the file heading
+        movies = []
+        counter = 0
+        progress = 0
         #f = codecs.open(filename, encoding='utf-8')
         f = codecs.open(filename, encoding='ISO-8859-1')
         for line in f:
@@ -40,11 +43,18 @@ class Command(BaseCommand):
 
             if in_body:
                 title, year = self.parse_movie_line(line)
+                #if title:
+                #    self.stdout.write(title)
                 if title:
-                    self.stdout.write(title)
-                if title:
-                    movie = Movie(title=title, year=year)
-                    movie.save()
+                    movies.append({'title': title, 'year': year})
+                    #movie = Movie(title=title, year=year)
+                    #movie.save()
+                    counter += 1
+                    progress += 1
+                    if progress == 1000:
+                        self.stdout.write(str(counter))
+                        progress = 0
+        return movies
 
     def handle(self, *args, **options):
         self.stdout.write('Importing IMDb files from "%s"' % options['directory'])
@@ -53,8 +63,8 @@ class Command(BaseCommand):
         movies_file = os.path.join(options['directory'], 'movies.list')
         self.stdout.write('Processing ' + movies_file)
         if os.path.isfile(os.path.join(options['directory'], 'movies.list')):
-            Movie.objects.all().delete()
-            self.import_movies(movies_file)
+            #Movie.objects.all().delete()
+            movies = self.import_movies(movies_file)
         else:
             self.stderr.write(movies_file + ' not found')
             return 1
