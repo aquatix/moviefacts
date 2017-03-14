@@ -156,6 +156,34 @@ class Command(BaseCommand):
                         progress = 0
         return movies
 
+    def import_plots(self, filename, movies):
+        """ Enrich the movies list with plot info """
+        in_body = False  # Denotes if we are done skipping the file heading
+        in_plot = False  # Denotes if we are in a plot entry
+        plot = ''
+        movies = {}
+        counter = 0
+        progress = 0
+        f = codecs.open(filename, encoding='ISO-8859-1')
+        for line in f:
+            if not in_body and '===================' in line:
+                in_body = True
+                continue
+
+            if in_body:
+                if line[:3] == 'MV:':
+                    title, year, runtime = self.parse_movie_runtime_line(line)
+                if title:
+                    movies[str(year) + base64.encodestring(title.encode('utf-8'))] = {'title': title, 'year': year}
+                    #movie = Movie(title=title, year=year)
+                    #movie.save()
+                    counter += 1
+                    progress += 1
+                    if progress == 1000:
+                        self.stdout.write(str(counter))
+                        progress = 0
+        return movies
+
     def handle(self, *args, **options):
         self.stdout.write('Importing IMDb files from "%s"' % options['directory'])
 
