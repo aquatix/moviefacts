@@ -45,12 +45,12 @@ class Command(BaseCommand):
         else:
             pieces = line.split('  ')
             title = pieces[-1]
-            if title and title[0] == '"':
-                # It's a serie entry, skip
+            if title and title[0] == '"' or '(VG)' in title:
+                # It's a serie entry or Video Game, skip
                 return None, None, None, None
             votes = pieces[-3].strip()
             rating = float(pieces[-2].strip())
-            title = title.replace(' (V)', '').replace(' (TV)', '').replace(' (VG)', '')
+            title = title.replace(' (V)', '').replace(' (TV)', '')
             try:
                 year = int(title[-5:-1])
             except ValueError:
