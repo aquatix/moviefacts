@@ -11,6 +11,10 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('directory', type=str)
 
+    def movie_hash(title, year):
+        h = hashlib.md5(str(year) + base64.encodestring(title.encode('utf-8')))
+        return h.digest().encode('base64')
+
     def parse_movie_line(self, line):
         # Movies:
         # Se7en (1995)                                            1995
@@ -189,6 +193,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write('Importing IMDb files from "%s"' % options['directory'])
+
+
+        movies_file = os.path.join(options['directory'], 'movies.list.tsv')
+        self.stdout.write('Processing ' + movies_file)
+
+
 
 
         movies_file = os.path.join(options['directory'], 'movies.list')
