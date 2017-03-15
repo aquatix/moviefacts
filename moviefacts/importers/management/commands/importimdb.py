@@ -184,6 +184,9 @@ class Command(BaseCommand):
                         progress = 0
         return movies
 
+    def movie_languages(self, filename, movies):
+        return movies
+
     def handle(self, *args, **options):
         self.stdout.write('Importing IMDb files from "%s"' % options['directory'])
 
@@ -199,10 +202,17 @@ class Command(BaseCommand):
 
         movies_file = os.path.join(options['directory'], 'ratings.list')
         if os.path.isfile(movies_file):
-            #Movie.objects.all().delete()
             movies = self.import_movies_with_ratings(movies_file)
         else:
             self.stderr.write(movies_file + ' not found')
+            return 1
+
+        self.stdout.write('Importing languages')
+        languages_file = os.path.join(options['directory'], 'language.list')
+        if os.path.isfile(movies_file):
+            movies = self.movie_languages(languages_file, movies)
+        else:
+            self.stderr.write(languages_file + ' not found')
             return 1
 
         self.stdout.write('Done reading, save to database...')
