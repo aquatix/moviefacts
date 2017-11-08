@@ -19,3 +19,10 @@ class Actor(models.Model):
     first_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255)
     nick_name = models.CharField(max_length=255, blank=True, null=True)
+
+
+class Genre(models.Model):
+    """ Movie and series genre """
+
+    genre_id = models.IntegerField()
+    name = models.CharField(max_length=255, blank=True, null=True)
